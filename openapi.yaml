@@ -1,0 +1,294 @@
+openapi: 3.1.0
+jsonSchemaDialect: https://spec.openapis.org/oas/3.1/dialect/base
+servers:
+  - url: https://test.example.com
+    description: Sandbox
+  - url: https://prod.example.com
+    description: Production
+info:
+  title: Basic OpenAPI 3.1.0 API example
+  version: 1.0.0
+  summary: Short description of the API (summary).
+  description: This is a general description, that users will see, when they open your documentation (description).
+paths:
+  /features/simple/post:
+    post:
+      tags:
+        - Simple
+      operationId: simplePost
+      summary: Simple request
+      description: |
+        This method demonstrates how different documentation providers handle a simple POST request.
+        You should see here:
+          - Complex request body
+          - Complex response body with http status <p style="color:green;">200</p>
+          - Default response body
+          - Link to external documentation (google.com)
+      externalDocs:
+        url: https://google.com
+        description: Link to externalDocs (google.com)
+      requestBody:
+        $ref: '#/components/requestBodies/SimpleRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/SimpleResponse'
+        default:
+          $ref: '#/components/responses/DefaultErrorResponse'
+  /features/simple/multiple-tags:
+    post:
+      tags:
+        - Simple
+        - Advanced
+      operationId: multipleTags
+      summary: Multiple tags
+      description: This method has multiple tags so you should check how this operations appears in other sections.
+      requestBody:
+        $ref: '#/components/requestBodies/SimpleRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/SimpleResponse'
+        default:
+          $ref: '#/components/responses/DefaultErrorResponse'
+  /features/advanced/discriminator:
+    post:
+      tags:
+        - Advanced
+      operationId: discriminator
+      summary: Discriminator
+      description: This operation attempts to use discriminator. This description of the discriminator can violate OpenAPI specification. It was done as a working reference for at least one documentation (redoc).
+      requestBody:
+        $ref: '#/components/requestBodies/DiscriminatorRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/DefaultResponse'
+        default:
+          $ref: '#/components/responses/DefaultErrorResponse'
+  /features/advanced/oneOf:
+    post:
+      tags:
+        - Advanced
+      operationId: oneOf
+      summary: oneOf
+      description: This is a general example of the `oneOf` implementation
+      requestBody:
+        $ref: '#/components/requestBodies/OneOfRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/DefaultResponse'
+        default:
+          $ref: '#/components/responses/DefaultErrorResponse'
+  /features/advanced/anyOf:
+    post:
+      tags:
+        - Advanced
+      operationId: anyOf
+      summary: anyOf
+      description: This is a general example of the `anyOf` implementation
+      requestBody:
+        $ref: '#/components/requestBodies/AnyOfRequest'
+      responses:
+        200:
+          $ref: '#/components/responses/DefaultResponse'
+        default:
+          $ref: '#/components/responses/DefaultErrorResponse'
+components:
+  schemas:
+    AnyOf:
+      anyOf:
+        - $ref: '#/components/schemas/ChildObject1'
+        - $ref: '#/components/schemas/ChildObject2'
+    OneOf:
+      oneOf:
+        - $ref: '#/components/schemas/ChildObject1'
+        - $ref: '#/components/schemas/ChildObject2'
+    Discriminator:
+      type: object
+      required:
+        - type
+      discriminator:
+        propertyName: type
+        mapping:
+          type1: '#/components/schemas/ChildObject1'
+          type2: '#/components/schemas/ChildObject2'
+      properties:
+        type: string
+        enum:
+          - type1
+          - type2
+    ChildObject1:
+      type: object
+      required:
+        - type
+        - propertyForObject1
+      properties:
+        type:
+          string
+        propertyForObject1:
+          type: object
+        valueForObject1:
+          type: string
+    ChildObject2:
+      type: object
+      required:
+        - type
+        - valueForObject2
+      properties:
+        type:
+          string
+        propertyForObject2:
+          type: object
+        valueForObject2:
+          type: object
+    DefaultSchema:
+      type: object
+      description: Default schema to reference
+      properties:
+        property1:
+          type: string
+        property2:
+          type: integer
+    AllFieldsSchema:
+      type: object
+      required:
+        - string
+        - enum
+        - const
+        - number
+      properties:
+        string:
+          minLength: 1
+          maxLength: 32
+          pattern: 'A**'
+          type: string
+          description: |
+            string with additional attributes:
+            - required
+            - minLength: 1
+            - maxLength: 32
+            - pattern: 'A**'
+        enum:
+          type: string
+          description: This field should be marked as `enum`
+          enum:
+            - value1
+            - value2
+        const:
+          description: This field should be marked as `constant`
+          type: string
+          const: constant
+        number:
+          description: | 
+            number with additional attributes:
+            - required
+            - multipleOf: 0.01
+            - exclusiveMaximum: 1000
+            - minimum: 0.01
+          type: number
+          multipleOf: 0.01
+          exclusiveMaximum: 1000
+          minimum: 0.01
+        integer:
+          description: |
+            integer with additional attributes:
+            - multipleOf: 5
+          type: integer
+          multipleOf: 5
+        array:
+          description: |
+            array with additional attributes:
+            - maxItems: 3
+            - minItems: 1
+            - uniqueItems: true
+          type: array
+          maxItems: 3
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: object
+            properties:
+              prop1:
+                type: string
+              prop2:
+                type: string
+        object:
+          description: |
+            object with additional attributes:
+            - minProperties: 1
+            - maxProperties: 2
+          type: object
+          minProperties: 1
+          maxProperties: 2
+          required:
+            - prop1
+          properties:
+            prop1:
+              type: string
+            prop2:
+              type: string
+            prop3:
+              type: string
+  responses:
+    DefaultResponse:
+      description: Default response to use as a placeholder
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/DefaultSchema'
+    DefaultErrorResponse:
+      description: Default response to use as a placeholder for error responses
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/DefaultSchema'
+    SimpleResponse:
+      description: This response should contain the header and the response body
+      headers:
+        X-Simple-Header:
+          description: Simple response header
+          schema:
+            type: string
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/AllFieldsSchema'
+  requestBodies:
+    OneOfRequest:
+      description: This request is using oneOf
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/OneOf'
+    AnyOfRequest:
+      description: This request is using anyOf
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/AnyOf'
+    DiscriminatorRequest:
+      description: This request is using discriminator
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/Discriminator'
+    DefaultRequest:
+      description: Default request to use as a placeholder
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/DefaultSchema'
+    SimpleRequest:
+      required: true
+      description: | 
+        This request includes all basic fields:
+        - string
+        - enum
+        - const
+        - number
+        - integer
+        - array
+        - object
+      content:
+        'application/json':
+          schema:
+            $ref: '#/components/schemas/AllFieldsSchema'
+
